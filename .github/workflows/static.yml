@@ -87,7 +87,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{ github.event.commits[0].author.name }}\nDate: ${{ steps.date.outputs.date }}\n\t${{ github.event.head_commit.message }}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.commits[0].author.name}}\nDate: ${{steps.date.outputs.date}}\n\t${{github.event.head_commit.message}}\n\nPageURL: ${{needs.deploy.outputs.page_url}}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
