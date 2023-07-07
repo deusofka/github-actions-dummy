@@ -28,6 +28,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -59,7 +61,6 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - name: Run Playwright tests
         run: npx playwright test
-
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
@@ -70,6 +71,12 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+      - name: Set page URL output
+        run: echo "::set-output name=page_url::${{ steps.deployment.outputs.page_url }}"
+      - name: Echo steps
+        run: echo "${{toJson(steps)}}"
+      - name: Echo page_url
+        run: echo "${{steps.deployment.outputs.page_url}}"
 
   notify:
     name: Notify on Slack
@@ -81,13 +88,21 @@ jobs:
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Echo steps
+        run: echo "${{toJson(steps)}}"
+      - name: Echo needs
+        run: echo "${{toJson(needs)}}"
+      - name: Echo steps page_url
+        run: echo "${{steps.deployment.outputs.page_url}}"
+      - name: Echo needs page_url
+        run: echo "${{needs.deploy.outputs.page_url}}"
       - uses: abinoda/slack-action@master
         env:
           # required
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.commits[0].author.name}}\nDate: ${{steps.date.outputs.date}}\n\t${{github.event.head_commit.message}}\n\nPageURL: ${{needs.deploy.outputs.page_url}}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.commits[0].author.name}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t${{github.event.head_commit.message}}\n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
