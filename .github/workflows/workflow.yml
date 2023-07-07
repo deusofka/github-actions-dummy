@@ -94,6 +94,7 @@ jobs:
         with:
           path: "playwright-report/"
 
+          
       - name: Deploy to GitHub Pages
         if: always()
         id: deployment
