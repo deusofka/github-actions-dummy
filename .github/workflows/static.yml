@@ -77,7 +77,8 @@ jobs:
         run: echo "${{toJson(steps)}}"
       - name: Echo page_url
         run: echo "${{steps.deployment.outputs.page_url}}"
-
+  
+  # Send notification on Slack
   notify:
     name: Notify on Slack
     runs-on: ubuntu-latest
