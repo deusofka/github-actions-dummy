@@ -29,7 +29,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     outputs:
-      page_url: https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.event.pull_request.number }}/index.html
+      page_url: https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -64,21 +64,21 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Create unique folder
-        run: mkdir playwright-report-${{ github.event.pull_request.number }}
+        run: mkdir playwright-report-${{ github.run_id }}
       - name: Copy report files
-        run: cp -R playwright-report/. playwright-report-${{ github.event.pull_request.number }}
+        run: cp -R playwright-report/. playwright-report-${{ github.run_id }}
       - name: Deploy to S3 bucket
         uses: keithweaver/aws-s3-github-action@v1.0.0
         id: deployment
         with:
           command: cp
-          source: ./playwright-report-${{ github.event.pull_request.number }}/index.html
-          destination: s3://quizizz-cypress-test-results/dev/playwright-report-${{ github.event.pull_request.number }}/index.html
+          source: ./playwright-report-${{ github.run_id }}/index.html
+          destination: s3://quizizz-cypress-test-results/dev/playwright-report-${{ github.run_id }}/index.html
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: us-east-1
       - name: Set page URL output
-        run: echo "::set-output name=page_url::https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.event.pull_request.number }}/index.html"
+        run: echo "::set-output name=page_url::https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html"
       - name: Echo steps
         run: echo "${{toJson(steps)}}"
   
