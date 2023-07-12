@@ -68,9 +68,7 @@ jobs:
       - name: Custom summary
         id: summary
         run: |
-          cat custom-summary.txt  # Log the contents of the custom-summary.txt file
-          report=$(echo 'hello hello, how low')
-          echo "::set-output name=custom_summary::$report"
+          echo "::set-output name=custom_summary::now?"
       - name: Echo custom summary
         run: echo "${{steps.summary.outputs.custom_summary}}"
       - name: Setup Pages
