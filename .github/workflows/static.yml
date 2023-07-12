@@ -63,11 +63,13 @@ jobs:
         run: npx playwright test
       - name: Setup Pages
         uses: actions/configure-pages@v3
+      - name: Create unique folder
+        run: mkdir ./playwright-report-${{ github.event.pull_request.number }}
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
-          # Upload entire repository
-          path: './playwright-report-${{ github.event.pull_request.number }}'
+          name: playwright-report
+          path: ./playwright-report-${{ github.event.pull_request.number }}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
