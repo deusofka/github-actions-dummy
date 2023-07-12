@@ -104,7 +104,7 @@ jobs:
       - name: Custom report
         id: custom_report
         run: |
-          report=$(sed '3! d' e2e/custom-summary.txt | awk '{print ":check-mark: " $0}' && sed '4! d' e2e/custom-summary.txt | awk '{print ":wrong-mark: " $0}' && sed '5! d' e2e/custom-summary.txt | awk '{print ":warn: " $0}' && sed '6! d' e2e/custom-summary.txt | awk '{print ":leftwards-arrow-with-hook: " $0}' && sed '9! d' e2e/custom-summary.txt | awk '{print ":stopwatch: " $0}')
+          report=$(sed '3! d' custom-summary.txt | awk '{print ":check-mark: " $0}' && sed '4! d' custom-summary.txt | awk '{print ":wrong-mark: " $0}' && sed '5! d' custom-summary.txt | awk '{print ":warn: " $0}' && sed '6! d' custom-summary.txt | awk '{print ":leftwards-arrow-with-hook: " $0}' && sed '9! d' custom-summary.txt | awk '{print ":stopwatch: " $0}')
           echo "::set-output name=custom_report::$report"
       - name: Get current date
         id: date
