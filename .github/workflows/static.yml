@@ -69,7 +69,7 @@ jobs:
         id: summary
         run: |
           cat custom-summary.txt  # Log the contents of the custom-summary.txt file
-          report=$(sed '3! d' custom-summary.txt | awk '{print "✅ " $0}' && sed '4! d' custom-summary.txt | awk '{print "❌ " $0}' && sed '5! d' custom-summary.txt | awk '{print "⚠️ " $0}' && sed '6! d' custom-summary.txt | awk '{print ":leftwards-arrow-with-hook: " $0}' && sed '9! d' custom-summary.txt | awk '{print "⏱️ " $0}')
+          report=$(echo 'hello hello, how low')
           echo "::set-output name=custom_summary::$report"
       - name: Echo custom summary
         run: echo "${{steps.summary.outputs.custom_summary}}"
