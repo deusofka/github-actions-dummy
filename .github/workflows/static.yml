@@ -30,6 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       page_url: https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html
+      # COMMIT_MESSAGE: $(git log --format=%B -n 1 $COMMIT_SHA)
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -82,7 +83,7 @@ jobs:
       - name: Get Commit Message
         id: commit
         run: |
-          COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
+          COMMIT_SHA=${{ github.event.pull_request.head.sha }}
           COMMIT_MESSAGE=$(git log --format=%B -n 1 $COMMIT_SHA)
           echo "Commit Message: $COMMIT_MESSAGE"
       - name: Echo steps
