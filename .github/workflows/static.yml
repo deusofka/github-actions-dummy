@@ -93,6 +93,14 @@ jobs:
     if: ${{ always() }}
     needs: [deploy]
     steps:
+      - name: Set mark
+        id: mark
+        run: |
+          if [[ ${{ needs.deploy.result }} == 'success' ]]; then
+            echo "::set-output name=mark:::white_check_mark:"
+          else
+            echo "::set-output name=mark:::x:"
+          fi
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
@@ -108,7 +116,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t${{needs.deploy.outputs.commit_message}} \n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} E2E Tests: ${{ needs.deploy.result }}\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"Pull Request: #${{github.event.pull_request.number}} <${{needs.deploy.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)Author: ${{github.event.pull_request.user.login}}Date: ${{steps.date.outputs.date}}${{needs.deploy.outputs.commit_message}}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
