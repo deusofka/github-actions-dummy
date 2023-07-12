@@ -78,7 +78,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: us-east-1
       - name: Set page URL output
-        run: echo "::set-output name=page_url::${{ steps.deployment.outputs.page_url }}"
+        run: echo "::set-output name=page_url::https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.event.pull_request.number }}/index.html"
       - name: Echo steps
         run: echo "${{toJson(steps)}}"
       - name: Echo page_url
