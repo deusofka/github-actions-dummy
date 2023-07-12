@@ -64,14 +64,14 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Create unique folder
-        run: mkdir ./playwright-report-${{ github.event.pull_request.number }}
+        run: mkdir playwright-report-${{ github.event.pull_request.number }}
       - name: Copy report files
         run: cp -R playwright-report/. playwright-report-${{ github.event.pull_request.number }}
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ./playwright-report-${{ github.event.pull_request.number }}
-          path: ./playwright-report-${{ github.event.pull_request.number }}
+          name: playwright-report-${{ github.event.pull_request.number }}
+          path: playwright-report-${{ github.event.pull_request.number }}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
