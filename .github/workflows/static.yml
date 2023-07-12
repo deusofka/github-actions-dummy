@@ -28,11 +28,11 @@ jobs:
     outputs:
       page_url: https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html
       commit_message: ${{ steps.commit.outputs.commit_message }}
-      line1: ${{ steps.custom_summary.outputs.line1 }}
-      line2: ${{ steps.custom_summary.outputs.line2 }}
-      line3: ${{ steps.custom_summary.outputs.line3 }}
-      line4: ${{ steps.custom_summary.outputs.line4 }}
-      line5: ${{ steps.custom_summary.outputs.line5 }}
+      summary_item_1: ${{ steps.summary.outputs.summary_item_1 }}
+      summary_item_2: ${{ steps.summary.outputs.summary_item_2 }}
+      summary_item_3: ${{ steps.summary.outputs.summary_item_3 }}
+      summary_item_4: ${{ steps.summary.outputs.summary_item_4 }}
+      summary_item_5: ${{ steps.summary.outputs.summary_item_5 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -70,15 +70,13 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
       - name: Custom summary
-        id: custom_summary
+        id: summary
         run: |
-          echo "::set-output name=line1::$(sed '3! d' custom-summary.txt)"
-          echo "::set-output name=line2::$(sed '4! d' custom-summary.txt)"
-          echo "::set-output name=line3::$(sed '5! d' custom-summary.txt)"
-          echo "::set-output name=line4::$(sed '6! d' custom-summary.txt)"
-          echo "::set-output name=line5::$(sed '9! d' custom-summary.txt)"
-      - name: Echo custom summary
-        run: echo "${{steps.custom_summary.outputs.line1}} ${{steps.custom_summary.outputs.line2}} ${{steps.custom_summary.outputs.line3}} ${{steps.custom_summary.outputs.line4}} ${{steps.custom_summary.outputs.line5}}"
+          echo "::set-output name=summary_item_1::$(sed '3! d' custom-summary.txt)"
+          echo "::set-output name=summary_item_2::$(sed '4! d' custom-summary.txt)"
+          echo "::set-output name=summary_item_3::$(sed '5! d' custom-summary.txt)"
+          echo "::set-output name=summary_item_4::$(sed '6! d' custom-summary.txt)"
+          echo "::set-output name=summary_item_5::$(sed '9! d' custom-summary.txt)"
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Create unique folder
@@ -131,7 +129,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack 
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} Pull Request: #${{github.event.pull_request.number}} <${{needs.test.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\n${{needs.test.outputs.commit_message}}\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"`✅` ${{ needs.test.outputs.line1 }}\n`❌` ${{ needs.test.outputs.line2 }}\n`🔆` ${{ needs.test.outputs.line3 }}\n`⏭️` ${{ needs.test.outputs.line4 }}\n`⏱️` ${{ needs.test.outputs.line5 }}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} Pull Request: #${{github.event.pull_request.number}} <${{needs.test.outputs.page_url}}|Test report>\"}},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\n${{needs.test.outputs.commit_message}}\"}},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"`✅` ${{ needs.test.outputs.summary_item_1 }}\n`❌` ${{ needs.test.outputs.summary_item_2 }}\n`🔆` ${{ needs.test.outputs.summary_item_3 }}\n`⏭️` ${{ needs.test.outputs.summary_item_4 }}\n`⏱️` ${{ needs.test.outputs.summary_item_5 }}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
