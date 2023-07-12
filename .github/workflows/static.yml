@@ -109,6 +109,8 @@ jobs:
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Echo report
+        run: echo "${{steps.custom_report.outputs.custom_report}}"
       - name: Echo steps
         run: echo "${{toJson(steps)}}"
       - name: Echo needs
@@ -121,7 +123,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} Pull Request: #${{github.event.pull_request.number}} <${{needs.deploy.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\n\t\t${{needs.deploy.outputs.commit_message}}\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.custom_report.outputs.custom_report }}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} Pull Request: #${{github.event.pull_request.number}} <${{needs.deploy.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\n\t\t${{needs.deploy.outputs.commit_message}}\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"Summary:\n${{ steps.custom_report.outputs.custom_report }}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
