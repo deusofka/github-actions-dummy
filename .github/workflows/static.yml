@@ -104,6 +104,7 @@ jobs:
       - name: Custom report
         id: custom_report
         run: |
+          cat custom-summary.txt  # Log the contents of the custom-summary.txt file
           report=$(sed '3! d' custom-summary.txt | awk '{print ":check-mark: " $0}' && sed '4! d' custom-summary.txt | awk '{print ":wrong-mark: " $0}' && sed '5! d' custom-summary.txt | awk '{print ":warn: " $0}' && sed '6! d' custom-summary.txt | awk '{print ":leftwards-arrow-with-hook: " $0}' && sed '9! d' custom-summary.txt | awk '{print ":stopwatch: " $0}')
           echo "::set-output name=custom_report::$report"
       - name: Get current date
@@ -123,7 +124,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} Pull Request: #${{github.event.pull_request.number}} <${{needs.deploy.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\n\t\t${{needs.deploy.outputs.commit_message}}\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"Summary:\n${{ steps.custom_report.outputs.custom_report }}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} Pull Request: #${{github.event.pull_request.number}} <${{needs.deploy.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\n${{needs.deploy.outputs.commit_message}}\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"Summary:\n${{ steps.custom_report.outputs.custom_report }}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
