@@ -76,11 +76,16 @@ jobs:
         run: |
           git config user.email "94vimalpatel@gmail.com"
           git config user.name "Vimal Patel"
-      - name: Deploy to GitHub Pages
-        id: deployment
-        run: |
-          npx gh-pages -d playwright-report-${{ github.event.pull_request.number }}
-          echo "::set-output name=page_url::https://${{ github.repository }}/playwright-report-${{ github.event.pull_request.number }}"
+      # - name: Deploy to GitHub Pages
+      #   id: deployment
+      #   run: |
+      #     npx gh-pages -d playwright-report-${{ github.event.pull_request.number }}
+      #     echo "::set-output name=page_url::https://${{ github.repository }}/playwright-report-${{ github.event.pull_request.number }}"
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
       - name: Set page URL output
         run: echo "::set-output name=page_url::${{ steps.deployment.outputs.page_url }}"
       - name: Echo steps
