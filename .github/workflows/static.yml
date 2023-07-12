@@ -68,9 +68,8 @@ jobs:
       - name: Custom summary
         id: summary
         run: |
-          cat custom-summary.txt  # Log the contents of the custom-summary.txt file
-          report=$(sed '3! d' custom-summary.txt | awk '{print ":check-mark: " $0}' && sed '4! d' custom-summary.txt | awk '{print ":wrong-mark: " $0}' && sed '5! d' custom-summary.txt | awk '{print ":warn: " $0}' && sed '6! d' custom-summary.txt | awk '{print ":leftwards-arrow-with-hook: " $0}' && sed '9! d' custom-summary.txt | awk '{print ":stopwatch: " $0}')
-          echo "::set-output name=custom_summary::$report"
+          cat custom-summary.txt
+          echo "::set-output name=custom_summary::$(sed '3! d' custom-summary.txt | awk '{print ":check-mark: " $0}' && sed '4! d' custom-summary.txt | awk '{print ":wrong-mark: " $0}' && sed '5! d' custom-summary.txt | awk '{print ":warn: " $0}' && sed '6! d' custom-summary.txt | awk '{print ":leftwards-arrow-with-hook: " $0}' && sed '9! d' custom-summary.txt | awk '{print ":stopwatch: " $0}')
       - name: Echo custom summary
         run: echo "${{steps.summary.outputs.custom_summary}}"
       - name: Setup Pages
