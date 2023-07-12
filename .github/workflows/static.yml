@@ -74,8 +74,8 @@ jobs:
           path: playwright-report-${{ github.event.pull_request.number }}
       - name: Configure Git identity
         run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions"
+          git config user.email "94vimalpatel@gmail.com"
+          git config user.name "Vimal Patel"
       - name: Deploy to GitHub Pages
         id: deployment
         run: |
