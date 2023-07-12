@@ -67,20 +67,14 @@ jobs:
         run: mkdir playwright-report-${{ github.event.pull_request.number }}
       - name: Copy report files
         run: cp -R playwright-report/. playwright-report-${{ github.event.pull_request.number }}
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
         with:
-          name: playwright-report
-          path: playwright-report
-      - name: Configure Git identity
-        run: |
-          git config user.email "94vimalpatel@gmail.com"
-          git config user.name "Vimal Patel"
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: playwright-report-${{ github.event.pull_request.number }}
+          command: cp
+          source: ./playwright-report-${{ github.event.pull_request.number }}
+          destination: s3://quizizz-cypress-test-results/dev/playwright-report-${{ github.event.pull_request.number }}
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
       - name: Set page URL output
         run: echo "::set-output name=page_url::${{ steps.deployment.outputs.page_url }}"
       - name: Echo steps
