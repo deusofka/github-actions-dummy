@@ -68,7 +68,7 @@ jobs:
       - name: Custom summary
         id: summary
         run: |
-          echo "::set-output name=custom_summary::$(ls)"
+          echo "::set-output name=custom_summary::$(cat custom-summary.txt)"
       - name: Echo custom summary
         run: echo "${{steps.summary.outputs.custom_summary}}"
       - name: Setup Pages
