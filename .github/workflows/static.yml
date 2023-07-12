@@ -81,8 +81,6 @@ jobs:
         run: echo "::set-output name=page_url::https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.event.pull_request.number }}/index.html"
       - name: Echo steps
         run: echo "${{toJson(steps)}}"
-      - name: Echo page_url
-        run: echo "${{steps.deployment.outputs.page_url}}"
   
   # Send notification on Slack
   notify:
@@ -99,8 +97,6 @@ jobs:
         run: echo "${{toJson(steps)}}"
       - name: Echo needs
         run: echo "${{toJson(needs)}}"
-      - name: Echo steps page_url
-        run: echo "${{steps.deployment.outputs.page_url}}"
       - name: Echo needs page_url
         run: echo "${{needs.deploy.outputs.page_url}}"
       - uses: abinoda/slack-action@master
@@ -109,7 +105,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.commits[0].author.name}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t${{github.event.head_commit.message}}\n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t${{github.event.pull_request.head.commit.message}}\n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
