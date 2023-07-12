@@ -80,12 +80,12 @@ jobs:
           aws_region: us-east-1
       - name: Set page URL output
         run: echo "::set-output name=page_url::https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html"
-      - name: Get Commit Message
-        id: commit
-        run: |
-          COMMIT_SHA=${{ github.event.pull_request.head.sha }}
-          COMMIT_MESSAGE=$(git log --format=%B -n 1 $COMMIT_SHA)
-          echo "Commit Message: $COMMIT_MESSAGE"
+      # - name: Get Commit Message
+      #   id: commit
+      #   run: |
+      #     COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+      #     COMMIT_MESSAGE=$(git log --format=%B -n 1 $COMMIT_SHA)
+      #     echo "Commit Message: $COMMIT_MESSAGE"
       - name: Echo steps
         run: echo "${{toJson(steps)}}"
   
@@ -112,7 +112,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t${{needs.deploy.outputs.commit.COMMIT_MESSAGE}}\n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t \n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
