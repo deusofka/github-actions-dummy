@@ -97,9 +97,9 @@ jobs:
         id: mark
         run: |
           if [[ ${{ needs.deploy.result }} == 'success' ]]; then
-            echo "::set-output name=mark:::white_check_mark:"
+            echo "::set-output name=mark:::check-mark:"
           else
-            echo "::set-output name=mark:::x:"
+            echo "::set-output name=mark:::wrong-mark:"
           fi
       - name: Get current date
         id: date
