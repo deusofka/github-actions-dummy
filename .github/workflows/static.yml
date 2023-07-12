@@ -28,7 +28,6 @@ jobs:
     outputs:
       page_url: https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html
       commit_message: ${{ steps.commit.outputs.commit_message }}
-      # COMMIT_MESSAGE: $(git log --format=%B -n 1 $COMMIT_SHA)
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -109,7 +108,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t${{needs.deploy.outputs.commit_message}} \n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> ${{github.event.pull_request.head.ref}}*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t${{needs.deploy.outputs.commit_message}} \n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
