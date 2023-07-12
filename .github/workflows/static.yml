@@ -67,7 +67,9 @@ jobs:
         run: mkdir playwright-report-${{ github.event.pull_request.number }}
       - name: Copy report files
         run: cp -R playwright-report/. playwright-report-${{ github.event.pull_request.number }}
-      - uses: keithweaver/aws-s3-github-action@v1.0.0
+      - name: Deploy to S3 bucket
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        id: deployment
         with:
           command: cp
           source: ./playwright-report-${{ github.event.pull_request.number }}/index.html
