@@ -34,7 +34,7 @@ function dashes(n) {
 }
 
 function customReport(stats) {
-  return `| ${all(stats)} | ${passed(stats)} | ${failed(stats)} | ${flaky(stats)} | ${skipped(stats)} | ${duration(stats)} |\n|${dashes(all(stats).length)}|${dashes(passed(stats).length)}|${dashes(failed(stats).length)}|${dashes(flaky(stats).length)}|${dashes(skipped(stats).length)}|${dashes(duration(stats).length)}|`
+  return `${all(stats)} | ${passed(stats)} | ${failed(stats)} | ${flaky(stats)} | ${skipped(stats)} | ${duration(stats)}`
 }
 
 export default customReport

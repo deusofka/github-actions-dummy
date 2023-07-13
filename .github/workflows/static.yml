@@ -29,7 +29,6 @@ jobs:
       page_url: https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html
       commit_message: ${{ steps.commit.outputs.commit_message }}
       summary_item_1: ${{ steps.summary.outputs.summary_item_1 }}
-      summary_item_2: ${{ steps.summary.outputs.summary_item_2 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -70,7 +69,6 @@ jobs:
         id: summary
         run: |
           echo "::set-output name=summary_item_1::$(sed '1! d' custom-summary.txt)"
-          echo "::set-output name=summary_item_2::$(sed '2! d' custom-summary.txt)"
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Create unique folder
@@ -112,7 +110,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack 
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} <https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/pull/${{github.event.pull_request.number}}|Pull Request #${{github.event.pull_request.number}}>—<${{needs.test.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> <https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/tree/${{github.event.pull_request.head.ref}}|${{github.event.pull_request.head.ref}}>*)\nAuthor: <https://github.com/${{github.event.pull_request.user.login}}|${{github.event.pull_request.user.login}}>\n<https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/commit/${{ github.sha }}|${{needs.test.outputs.commit_message}}>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ needs.test.outputs.summary_item_1 }}\n${{ needs.test.outputs.summary_item_2 }}\n\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} <https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/pull/${{github.event.pull_request.number}}|Pull Request #${{github.event.pull_request.number}}>—<${{needs.test.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> <https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/tree/${{github.event.pull_request.head.ref}}|${{github.event.pull_request.head.ref}}>*)\nAuthor: <https://github.com/${{github.event.pull_request.user.login}}|${{github.event.pull_request.user.login}}>\n<https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/commit/${{ github.sha }}|${{needs.test.outputs.commit_message}}>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ needs.test.outputs.summary_item_1 }}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
