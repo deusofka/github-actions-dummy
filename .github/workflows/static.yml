@@ -117,23 +117,21 @@ jobs:
       - name: Get current date
         id: date
         run: |
+          # Set the desired time zone offset
           offset_hours=5
           offset_minutes=30
-          offset_sign="+"
           
-          # Get the current date and time in UTC
-          utc_date=$(date -u +"%a %b %d %H:%M:%S %Y")
+          # Calculate the total offset in minutes
+          total_offset=$((offset_hours * 60 + offset_minutes))
           
-          # Convert UTC time to desired time zone offset
-          offset_hours_padded=$(printf "%02d" $offset_hours)
-          offset_minutes_padded=$(printf "%02d" $offset_minutes)
-          offset="${offset_sign}${offset_hours_padded}:${offset_minutes_padded}"
+          # Set the TZ environment variable with the desired time zone offset
+          export TZ="UTC+${total_offset}"
           
-          # Add the offset to the UTC date
-          offset_date=$(date -d "${utc_date} ${offset}" +"%a %b %d %H:%M:%S %Y %z")
+          # Get the current date and time in the desired time zone offset
+          formatted_date=$(date +"%a %b %d %H:%M:%S %Y %z")
           
-          # Print the formatted date with the time zone offset
-          echo "::set-output name=date::${offset_date}"
+          # Print the formatted date
+          echo "::set-output name=date::${formatted_date}"
       - name: Echo steps
         run: echo "${{toJson(steps)}}"
       - name: Echo needs
