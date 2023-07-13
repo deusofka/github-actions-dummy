@@ -117,7 +117,7 @@ jobs:
         run: |
           commit_sha=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits" \
-            | jq -r '.[0].commit.author.date')
+            | jq -r '.[-1].commit.author.date')
           echo "::set-output name=commit_date::$commit_sha"
       - uses: abinoda/slack-action@master
         env:
