@@ -113,16 +113,19 @@ jobs:
             echo "::set-output name=mark:::wrong-mark:"
           fi
       - name: Get commit date
-        id: date
+        id: commit_date
         run: |
-          echo "::set-output name=mark::${{ github.event.pull_request.head.sha }}"
+          commit_sha=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits" \
+            | jq -r '.[0].commit.author.date')
+          echo "::set-output name=commit_date::$commit_sha"
       - uses: abinoda/slack-action@master
         env:
           # required
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack 
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} <https://github.com/deusofka/github-actions-dummy/pull/${{github.event.pull_request.number}}|Pull Request: #${{github.event.pull_request.number}}> <${{needs.test.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> <https://github.com/deusofka/github-actions-dummy/tree/${{github.event.pull_request.head.ref}}|${{github.event.pull_request.head.ref}}>*)\nAuthor: <https://github.com/${{github.event.pull_request.user.login}}|${{github.event.pull_request.user.login}}>\nDate: ${{steps.date.outputs.commit_date}}\n<https://github.com/deusofka/github-actions-dummy/commit/${{ github.sha }}|${{needs.test.outputs.commit_message}}>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"`✅` ${{ needs.test.outputs.summary_item_1 }}\n`❌` ${{ needs.test.outputs.summary_item_2 }}\n`🔆` ${{ needs.test.outputs.summary_item_3 }}\n`⏭️` ${{ needs.test.outputs.summary_item_4 }}\n`⏱️` ${{ needs.test.outputs.summary_item_5 }}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} <https://github.com/deusofka/github-actions-dummy/pull/${{github.event.pull_request.number}}|Pull Request #${{github.event.pull_request.number}}> <${{needs.test.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> <https://github.com/deusofka/github-actions-dummy/tree/${{github.event.pull_request.head.ref}}|${{github.event.pull_request.head.ref}}>*)\nAuthor: <https://github.com/${{github.event.pull_request.user.login}}|${{github.event.pull_request.user.login}}>\nDate: ${{steps.commit_date.outputs.commit_date}}\n<https://github.com/deusofka/github-actions-dummy/commit/${{ github.sha }}|${{needs.test.outputs.commit_message}}>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"`✅` ${{ needs.test.outputs.summary_item_1 }}\n`❌` ${{ needs.test.outputs.summary_item_2 }}\n`🔆` ${{ needs.test.outputs.summary_item_3 }}\n`⏭️` ${{ needs.test.outputs.summary_item_4 }}\n`⏱️` ${{ needs.test.outputs.summary_item_5 }}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
