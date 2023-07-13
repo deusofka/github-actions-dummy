@@ -117,8 +117,7 @@ jobs:
       - name: Get commit date
         id: date
         run: |
-          commit_date=${{ github.event.pull_request.head.sha }}
-          echo "Commit Date: $commit_date"
+          echo "::set-output name=mark::${{ github.event.pull_request.head.sha }}"
       - name: Echo steps
         run: echo "${{toJson(steps)}}"
       - name: Echo needs
