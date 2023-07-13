@@ -69,8 +69,8 @@ jobs:
       - name: Custom summary
         id: summary
         run: |
-          echo "::set-output name=summary_item_1::$(sed '3! d' custom-summary.txt)"
-          echo "::set-output name=summary_item_2::$(sed '4! d' custom-summary.txt)"
+          echo "::set-output name=summary_item_1::$(sed '1! d' custom-summary.txt)"
+          echo "::set-output name=summary_item_2::$(sed '2! d' custom-summary.txt)"
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Create unique folder
