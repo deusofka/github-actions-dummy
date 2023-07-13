@@ -114,24 +114,10 @@ jobs:
           else
             echo "::set-output name=mark:::wrong-mark:"
           fi
-      - name: Get current date
-        id: date
+      - name: Get commit date
         run: |
-          # Set the desired time zone offset
-          offset_hours=5
-          offset_minutes=30
-          
-          # Calculate the total offset in minutes
-          total_offset=$((offset_hours * 60 + offset_minutes))
-          
-          # Set the TZ environment variable with the desired time zone offset
-          export TZ="UTC+${total_offset}"
-          
-          # Get the current date and time in the desired time zone offset
-          formatted_date=$(date +"%a %b %d %H:%M:%S %Y %z")
-          
-          # Print the formatted date
-          echo "::set-output name=date::${formatted_date}"
+          commit_date=${{ github.event.pull_request.head.sha }}
+          echo "Commit Date: $commit_date"
       - name: Echo steps
         run: echo "${{toJson(steps)}}"
       - name: Echo needs
@@ -144,7 +130,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
           # custom message to send to slack 
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} <https://github.com/deusofka/github-actions-dummy/pull/${{github.event.pull_request.number}}|Pull Request: #${{github.event.pull_request.number}}> <${{needs.test.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> <https://github.com/deusofka/github-actions-dummy/tree/${{github.event.pull_request.head.ref}}|${{github.event.pull_request.head.ref}}>*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.date}}\n\n\n<$https://github.com/deusofka/github-actions-dummy/pull/3/commits/${{ github.sha }}|{{needs.test.outputs.commit_message}}>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"`✅` ${{ needs.test.outputs.summary_item_1 }}\n`❌` ${{ needs.test.outputs.summary_item_2 }}\n`🔆` ${{ needs.test.outputs.summary_item_3 }}\n`⏭️` ${{ needs.test.outputs.summary_item_4 }}\n`⏱️` ${{ needs.test.outputs.summary_item_5 }}\"}}]}'
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} <https://github.com/deusofka/github-actions-dummy/pull/${{github.event.pull_request.number}}|Pull Request: #${{github.event.pull_request.number}}> <${{needs.test.outputs.page_url}}|Test report>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> <https://github.com/deusofka/github-actions-dummy/tree/${{github.event.pull_request.head.ref}}|${{github.event.pull_request.head.ref}}>*)\nAuthor: ${{github.event.pull_request.user.login}}\nDate: ${{steps.date.outputs.commit_date}}\n\n\n<https://github.com/deusofka/github-actions-dummy/pull/3/commits/${{ github.sha }}|${{needs.test.outputs.commit_message}}>\"}},{\"type\":\"divider\"},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"`✅` ${{ needs.test.outputs.summary_item_1 }}\n`❌` ${{ needs.test.outputs.summary_item_2 }}\n`🔆` ${{ needs.test.outputs.summary_item_3 }}\n`⏭️` ${{ needs.test.outputs.summary_item_4 }}\n`⏱️` ${{ needs.test.outputs.summary_item_5 }}\"}}]}'
 
         # Pick up events even if the job is success.
         if: success()
