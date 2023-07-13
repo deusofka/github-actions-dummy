@@ -1,5 +1,6 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+import customReport from './src/config/CustomReport';
 
 /**
  * Read environment variables from file.
@@ -22,7 +23,7 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    ['@skilbourn/playwright-report-summary', { outputFile: 'custom-summary.txt' }],
+    ['@skilbourn/playwright-report-summary', { outputFile: 'custom-summary.txt', inputTemplate: customReport }],
     ['html'], // other reporters
     ['dot']
   ],

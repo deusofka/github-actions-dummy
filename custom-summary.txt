@@ -1,13 +1,2 @@
-Total Tests in Suite: 2,
-Total Tests Completed: 2,
-Tests Passed: 1,
-Tests Failed: 0,
-Flaky Tests: 0,
-Test Skipped: 1,
-Test run was failure free? true,
-Duration of CPU usage in ms: 3929,
-Duration of entire test run in ms: 4871,
-Average Test Duration in ms: 1965,
-Test Suite Duration: 00:05 (mm:ss),
-Average Test Duration: 00:02 (mm:ss),
-Number of workers used for test run: 2
+| `🧪` All: 2 | `✅` Passed: 1 | `❌` Failed: 0 | `🔆` Flaky: 0 | `⏭️` Skipped: 1 | `⏳` Duration: 0m |
+|-------------|---------------|---------------|---------------|-----------------|------------------|
