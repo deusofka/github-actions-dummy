@@ -22,17 +22,21 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Single test job since we're just deploying
+  test:
     runs-on: ubuntu-latest
     outputs:
-      page_url: ${{ steps.deployment.outputs.page_url }}
+      page_url: https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html
+      commit_message: ${{ steps.commit.outputs.commit_message }}
+      summary_item_1: ${{ steps.summary.outputs.summary_item_1 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Print head git commit message
+        id: commit
+        run: echo "::set-output name=commit_message::$(git show -s --format=%s)"
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -61,48 +65,52 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - name: Run Playwright tests
         run: npx playwright test
+      - name: Custom summary
+        id: summary
+        run: |
+          echo "::set-output name=summary_item_1::$(sed '1! d' custom-summary.txt)"
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          # Upload entire repository
-          path: './playwright-report'
-      - name: Deploy to GitHub Pages
+      - name: Create unique folder
+        run: mkdir playwright-report-${{ github.run_id }}
+      - name: Copy report files
+        run: cp -R playwright-report/. playwright-report-${{ github.run_id }}
+      - name: Deploy to S3 bucket
+        uses: keithweaver/aws-s3-github-action@v1.0.0
         id: deployment
-        uses: actions/deploy-pages@v2
+        with:
+          command: cp
+          source: ./playwright-report-${{ github.run_id }}/index.html
+          destination: s3://quizizz-cypress-test-results/dev/playwright-report-${{ github.run_id }}/index.html
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
       - name: Set page URL output
-        run: echo "::set-output name=page_url::${{ steps.deployment.outputs.page_url }}"
-      - name: Echo steps
-        run: echo "${{toJson(steps)}}"
-      - name: Echo page_url
-        run: echo "${{steps.deployment.outputs.page_url}}"
+        run: echo "::set-output name=page_url::https://quizizz-cypress-test-results.s3.amazonaws.com/dev/playwright-report-${{ github.run_id }}/index.html"
 
+  # Send notification on Slack
   notify:
     name: Notify on Slack
     runs-on: ubuntu-latest
     # Always run this job
     if: ${{ always() }}
-    needs: [deploy]
+    needs: [test]
     steps:
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-      - name: Echo steps
-        run: echo "${{toJson(steps)}}"
-      - name: Echo needs
-        run: echo "${{toJson(needs)}}"
-      - name: Echo steps page_url
-        run: echo "${{steps.deployment.outputs.page_url}}"
-      - name: Echo needs page_url
-        run: echo "${{needs.deploy.outputs.page_url}}"
+      - name: Set mark
+        id: mark
+        run: |
+          if [[ ${{ needs.test.result }} == 'success' ]]; then
+            echo "::set-output name=mark:::check-mark:"
+          else
+            echo "::set-output name=mark:::wrong-mark:"
+          fi
       - uses: abinoda/slack-action@master
         env:
           # required
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          # custom message to send to slack
-          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }}\nAuthor: ${{github.event.commits[0].author.name}}\nDate: ${{steps.date.outputs.date}}\n\n\t\t${{github.event.head_commit.message}}\n\n\n\t\tTest report: ${{needs.deploy.outputs.page_url}}\"}}]}'
+          # custom message to send to slack 
+          args: '{\"channel\":\"${{ secrets.SLACK_PR_CHANNEL_ID }}\",\"blocks\":[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ steps.mark.outputs.mark }} <https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/pull/${{github.event.pull_request.number}}|Pull Request #${{github.event.pull_request.number}}>—><${{needs.test.outputs.page_url}}|Full Test Report>\"}},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"${{ needs.test.outputs.summary_item_1 }}\"}},{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"commit ${{ github.sha }} (*HEAD -> <https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/tree/${{github.event.pull_request.head.ref}}|${{github.event.pull_request.head.ref}}>*)\nAuthor: <https://github.com/${{github.event.pull_request.user.login}}|${{github.event.pull_request.user.login}}>\n<https://github.com/${{github.event.pull_request.user.login}}/github-actions-dummy/commit/${{ github.sha }}|${{needs.test.outputs.commit_message}}>\"}},{\"type\":\"divider\"}]}'
 
         # Pick up events even if the job is success.
         if: success()

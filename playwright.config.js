@@ -1,5 +1,6 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+import customReport from './src/config/CustomReport';
 
 /**
  * Read environment variables from file.
@@ -21,7 +22,11 @@ module.exports = defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['@skilbourn/playwright-report-summary', { outputFile: 'custom-summary.txt', inputTemplate: customReport }],
+    ['html'], // other reporters
+    ['dot']
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
